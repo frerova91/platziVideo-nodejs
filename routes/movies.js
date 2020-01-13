@@ -14,6 +14,14 @@ const {
 //Importando la validacion para la DB
 const validationHandler = require('../utils/middleware/validationHandler');
 
+//Requirendo cache para algunas rutas esto se usa mayormente para el dev
+const cacheResponse = require('../utils/cacheResponse');
+//tiempo de vida del cahce
+const {
+  FIVE_MINUTES_IN_SECONDS,
+  SIXTY_MINUTES_IN_SECONDS
+} = require('../utils/time');
+
 //funcion que consume una app de express
 function moviesApi(app) {
   const router = express.Router();
@@ -24,6 +32,7 @@ function moviesApi(app) {
 
   //Aqui definimos las rutas
   router.get('/', async function(req, res, next) {
+    cacheResponse(res, FIVE_MINUTES_IN_SECONDS);
     //los tags probiene del query de la url recuerda response.object y request.object la lectura del curso
     const { tags } = req.query;
     try {
@@ -49,6 +58,7 @@ function moviesApi(app) {
     '/:movieId',
     validationHandler({ movieId: movieIdSchema }, 'params'),
     async function(req, res, next) {
+      cacheResponse(res, SIXTY_MINUTES_IN_SECONDS);
       //en este caso el id biene como parametro en la url
       const { movieId } = req.params;
       try {
